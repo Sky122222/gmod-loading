@@ -105,82 +105,135 @@ const songs = [
 let currentSongIndex = 0
 let isPlaying = false
 let isMuted = false
+let audio = null
 
 function initMusicPlayer() {
-  const audio = document.getElementById("music-audio")
+  audio = document.getElementById("music-audio")
   const playBtn = document.getElementById("play-btn")
   const prevBtn = document.getElementById("prev-btn")
   const nextBtn = document.getElementById("next-btn")
   const muteBtn = document.getElementById("mute-btn")
   const volumeSlider = document.getElementById("volume")
 
-  if (!audio) return
+  if (!audio) {
+    console.log("[v0] Audio element not found!")
+    return
+  }
+
+  console.log("[v0] Music player initialized")
 
   // Ersten Song laden
   loadSong(currentSongIndex)
 
   // Lautstärke setzen
-  audio.volume = volumeSlider.value / 100
+  audio.volume = volumeSlider ? volumeSlider.value / 100 : 0.5
+
+  audio.addEventListener("error", (e) => {
+    console.log("[v0] Audio error:", audio.error)
+  })
+
+  audio.addEventListener("canplaythrough", () => {
+    console.log("[v0] Song ready to play:", songs[currentSongIndex].title)
+  })
 
   // Play/Pause Button
-  playBtn.addEventListener("click", () => {
-    if (isPlaying) {
-      audio.pause()
-      isPlaying = false
+  if (playBtn) {
+    playBtn.addEventListener("click", () => {
+      console.log("[v0] Play button clicked")
+      if (isPlaying) {
+        audio.pause()
+        isPlaying = false
+      } else {
+        audio
+          .play()
+          .then(() => {
+            console.log("[v0] Audio started playing")
+            isPlaying = true
+            updatePlayIcon()
+          })
+          .catch((err) => {
+            console.log("[v0] Play error:", err)
+          })
+      }
       updatePlayIcon()
-    } else {
-      audio.play()
-      isPlaying = true
-      updatePlayIcon()
-    }
-  })
+    })
+  }
 
   // Vorheriger Song
-  prevBtn.addEventListener("click", () => {
-    currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length
-    loadSong(currentSongIndex)
-    if (isPlaying) audio.play()
-  })
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length
+      loadSong(currentSongIndex)
+      if (isPlaying) {
+        audio.play().catch((err) => console.log("[v0] Play error:", err))
+      }
+    })
+  }
 
   // Nächster Song
-  nextBtn.addEventListener("click", () => {
-    currentSongIndex = (currentSongIndex + 1) % songs.length
-    loadSong(currentSongIndex)
-    if (isPlaying) audio.play()
-  })
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      currentSongIndex = (currentSongIndex + 1) % songs.length
+      loadSong(currentSongIndex)
+      if (isPlaying) {
+        audio.play().catch((err) => console.log("[v0] Play error:", err))
+      }
+    })
+  }
 
   // Mute Button
-  muteBtn.addEventListener("click", () => {
-    isMuted = !isMuted
-    audio.muted = isMuted
-    updateVolumeIcon()
-  })
+  if (muteBtn) {
+    muteBtn.addEventListener("click", () => {
+      isMuted = !isMuted
+      audio.muted = isMuted
+      updateVolumeIcon()
+    })
+  }
 
   // Lautstärke-Slider
-  volumeSlider.addEventListener("input", (e) => {
-    audio.volume = e.target.value / 100
-    if (e.target.value == 0) {
-      isMuted = true
-    } else {
-      isMuted = false
-      audio.muted = false
-    }
-    updateVolumeIcon()
-  })
+  if (volumeSlider) {
+    volumeSlider.addEventListener("input", (e) => {
+      audio.volume = e.target.value / 100
+      if (e.target.value == 0) {
+        isMuted = true
+      } else {
+        isMuted = false
+        audio.muted = false
+      }
+      updateVolumeIcon()
+    })
+  }
 
   // Song zu Ende -> nächster Song
   audio.addEventListener("ended", () => {
     currentSongIndex = (currentSongIndex + 1) % songs.length
     loadSong(currentSongIndex)
-    audio.play()
+    audio.play().catch((err) => console.log("[v0] Play error:", err))
   })
+
+  document.addEventListener("click", tryAutoplay, { once: true })
+}
+
+function tryAutoplay() {
+  if (audio && !isPlaying) {
+    audio
+      .play()
+      .then(() => {
+        console.log("[v0] Autoplay started after user interaction")
+        isPlaying = true
+        updatePlayIcon()
+      })
+      .catch((err) => {
+        console.log("[v0] Autoplay failed:", err)
+      })
+  }
 }
 
 function loadSong(index) {
-  const audio = document.getElementById("music-audio")
   const titleEl = document.getElementById("music-title")
 
   if (audio && songs[index]) {
+    console.log("[v0] Loading song:", songs[index].file)
     audio.src = songs[index].file
     if (titleEl) titleEl.innerText = songs[index].title
   }
