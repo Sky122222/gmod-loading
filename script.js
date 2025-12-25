@@ -98,15 +98,15 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 
 const songs = [
   {
-    file: "https://www.dropbox.com/scl/fi/mm9qzwo2mpxb87opj70t3/dromund-kaas-the-seat-of-power.mp3?rlkey=7891pxe1ui6xzfru50ltcnv82&st=vk9f8nsx&dl=1",
+    file: "https://dl.dropboxusercontent.com/scl/fi/mm9qzwo2mpxb87opj70t3/dromund-kaas-the-seat-of-power.mp3?rlkey=7891pxe1ui6xzfru50ltcnv82",
     title: "Dromund Kaas: The Seat of Power",
   },
   {
-    file: "https://www.dropbox.com/scl/fi/l2fj99nwu03l93k08e8zx/coruscant-the-capital.mp3?rlkey=j68pojym2oei1yculurkhu65u&st=2cmt1q3k&dl=1",
+    file: "https://dl.dropboxusercontent.com/scl/fi/l2fj99nwu03l93k08e8zx/coruscant-the-capital.mp3?rlkey=j68pojym2oei1yculurkhu65u",
     title: "Coruscant: The Capital",
   },
   {
-    file: "https://www.dropbox.com/scl/fi/njvmtnj8n4ryg1ilq7j8c/the-blood-of-kings.mp3?rlkey=011ajr4vdc5q0075nkkksw035&st=ajl6mfjg&dl=1",
+    file: "https://dl.dropboxusercontent.com/scl/fi/njvmtnj8n4ryg1ilq7j8c/the-blood-of-kings.mp3?rlkey=011ajr4vdc5q0075nkkksw035",
     title: "The Blood of Kings",
   },
 ]
@@ -115,6 +115,7 @@ let currentSongIndex = 0
 let isPlaying = false
 let isMuted = false
 let audio = null
+let volumeSlider = null
 
 function initMusicPlayer() {
   audio = document.getElementById("music-audio")
@@ -122,33 +123,23 @@ function initMusicPlayer() {
   const prevBtn = document.getElementById("prev-btn")
   const nextBtn = document.getElementById("next-btn")
   const muteBtn = document.getElementById("mute-btn")
-  const volumeSlider = document.getElementById("volume")
+  volumeSlider = document.getElementById("volume")
 
   if (!audio) {
-    console.log("[v0] Audio element not found!")
     return
   }
 
-  console.log("[v0] Music player initialized")
-
-  // Ersten Song laden
   loadSong(currentSongIndex)
 
-  // Lautstärke setzen
   audio.volume = volumeSlider ? volumeSlider.value / 100 : 0.5
 
   audio.addEventListener("error", (e) => {
-    console.log("[v0] Audio error:", audio.error)
-  })
-
-  audio.addEventListener("canplaythrough", () => {
-    console.log("[v0] Song ready to play:", songs[currentSongIndex].title)
+    console.error("Audio Load Error:", audio.error)
   })
 
   // Play/Pause Button
   if (playBtn) {
     playBtn.addEventListener("click", () => {
-      console.log("[v0] Play button clicked")
       if (isPlaying) {
         audio.pause()
         isPlaying = false
@@ -156,12 +147,11 @@ function initMusicPlayer() {
         audio
           .play()
           .then(() => {
-            console.log("[v0] Audio started playing")
             isPlaying = true
             updatePlayIcon()
           })
           .catch((err) => {
-            console.log("[v0] Play error:", err)
+            console.error("Playback failed:", err)
           })
       }
       updatePlayIcon()
@@ -174,7 +164,7 @@ function initMusicPlayer() {
       currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length
       loadSong(currentSongIndex)
       if (isPlaying) {
-        audio.play().catch((err) => console.log("[v0] Play error:", err))
+        audio.play().catch((err) => console.error("Playback failed:", err))
       }
     })
   }
@@ -185,7 +175,7 @@ function initMusicPlayer() {
       currentSongIndex = (currentSongIndex + 1) % songs.length
       loadSong(currentSongIndex)
       if (isPlaying) {
-        audio.play().catch((err) => console.log("[v0] Play error:", err))
+        audio.play().catch((err) => console.error("Playback failed:", err))
       }
     })
   }
@@ -217,7 +207,7 @@ function initMusicPlayer() {
   audio.addEventListener("ended", () => {
     currentSongIndex = (currentSongIndex + 1) % songs.length
     loadSong(currentSongIndex)
-    audio.play().catch((err) => console.log("[v0] Play error:", err))
+    audio.play().catch((err) => console.error("Playback failed:", err))
   })
 
   document.addEventListener("click", tryAutoplay, { once: true })
@@ -228,12 +218,11 @@ function tryAutoplay() {
     audio
       .play()
       .then(() => {
-        console.log("[v0] Autoplay started after user interaction")
         isPlaying = true
         updatePlayIcon()
       })
       .catch((err) => {
-        console.log("[v0] Autoplay failed:", err)
+        // Autoplay can fail if no interaction happened yet
       })
   }
 }
@@ -242,7 +231,6 @@ function loadSong(index) {
   const titleEl = document.getElementById("music-title")
 
   if (audio && songs[index]) {
-    console.log("[v0] Loading song:", songs[index].file)
     audio.src = songs[index].file
     if (titleEl) titleEl.innerText = songs[index].title
   }
