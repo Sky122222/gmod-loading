@@ -146,7 +146,7 @@ body {
   position: fixed;
   bottom: 80px; /* Adjusted to sit above terminal corner */
   right: 60px;
-  width: 400px; /* Larger width for better message display */
+  width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -156,8 +156,8 @@ body {
 
 .hologram-projection {
   position: relative;
-  width: 200px; /* Slightly larger projection */
-  height: 300px;
+  width: 250px;
+  height: 350px;
   margin-bottom: 10px;
 }
 
@@ -213,6 +213,10 @@ body {
   border-right: 4px solid #00ffff;
   border-left: none; /* Changed side to match right alignment */
   width: 100%;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 255, 255, 0.2);
   text-align: right;
 }
@@ -220,11 +224,12 @@ body {
 #hologram-text {
   margin: 0;
   font-family: "Orbitron", sans-serif;
-  font-size: 16px; /* Slightly larger text */
+  font-size: 18px;
   color: #00ffff;
   line-height: 1.4;
   letter-spacing: 1px;
   text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+  white-space: normal;
 }
 
 @keyframes holoFloat {
