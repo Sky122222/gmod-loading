@@ -280,29 +280,43 @@ const audioJedi = document.getElementById("audio-jedi")
 const targetVolume = 0.25 // Set volume to 25% (calm background)
 
 function initAudio() {
-  // GMod/Chromium often needs interaction to start audio context
+  console.log("[v0] Initializing audio system...")
+
   const startAudio = () => {
     if (audioContextStarted) return
     audioContextStarted = true
 
+    console.log("[v0] Interaction detected, attempting to play audio...")
+
     // Start both muted and fade in the active one
     audioSith.volume = 0
     audioJedi.volume = 0
-    audioSith.play().catch((e) => console.log("[v0] Sith audio play failed:", e))
-    audioJedi.play().catch((e) => console.log("[v0] Jedi audio play failed:", e))
+
+    const playSith = audioSith.play()
+    if (playSith !== undefined) {
+      playSith.catch((e) => console.log("[v0] Sith audio play failed. Check if 'sith.mp3' exists in root folder:", e))
+    }
+
+    const playJedi = audioJedi.play()
+    if (playJedi !== undefined) {
+      playJedi.catch((e) => console.log("[v0] Jedi audio play failed. Check if 'jedi.mp3' exists in root folder:", e))
+    }
 
     // Initial fade in based on current faction
     const sidepanel = document.getElementById("sidepanel")
     const isRed = sidepanel.classList.contains("color-red")
+
+    console.log("[v0] Initial faction is " + (isRed ? "Sith" : "Jedi"))
     fadeAudio(isRed ? audioSith : audioJedi, targetVolume)
 
     document.removeEventListener("mousemove", startAudio)
     document.removeEventListener("mousedown", startAudio)
-    console.log("[v0] Audio context started via interaction")
+    document.removeEventListener("keydown", startAudio)
   }
 
   document.addEventListener("mousemove", startAudio)
   document.addEventListener("mousedown", startAudio)
+  document.addEventListener("keydown", startAudio)
 }
 
 function fadeAudio(audio, target) {
