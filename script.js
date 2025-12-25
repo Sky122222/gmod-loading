@@ -129,8 +129,6 @@ function initMusicPlayer() {
     return
   }
 
-  audio.crossOrigin = "anonymous"
-
   loadSong(currentSongIndex)
 
   audio.volume = volumeSlider ? volumeSlider.value / 100 : 0.5
@@ -147,10 +145,15 @@ function initMusicPlayer() {
   // Play/Pause Button
   if (playBtn) {
     playBtn.addEventListener("click", () => {
+      console.log("[v0] Play button clicked") // Added debug log
       if (isPlaying) {
         audio.pause()
         isPlaying = false
+        updatePlayIcon()
       } else {
+        if (!audio.src || audio.src === "") {
+          loadSong(currentSongIndex)
+        }
         audio
           .play()
           .then(() => {
@@ -158,10 +161,9 @@ function initMusicPlayer() {
             updatePlayIcon()
           })
           .catch((err) => {
-            console.error("Playback failed:", err)
+            console.error("[v0] Playback failed:", err)
           })
       }
-      updatePlayIcon()
     })
   }
 
@@ -238,9 +240,11 @@ function loadSong(index) {
   const titleEl = document.getElementById("music-title")
 
   if (audio && songs[index]) {
+    console.log("[v0] Loading song:", songs[index].title) // Added debug log
     audio.pause()
     audio.src = songs[index].file
-    audio.load() // Explicitly load the new resource
+    audio.preload = "auto" // Ensure metadata is preloaded
+    audio.load()
     if (titleEl) titleEl.innerText = songs[index].title
   }
 }
