@@ -278,40 +278,69 @@ let fakeProgress = 0
 let audioContextStarted = false
 const audioSith = document.getElementById("audio-sith")
 const audioJedi = document.getElementById("audio-jedi")
-const targetVolume = 0.2 // Comfortable background volume
+const targetVolume = 0.15 // Slightly lower volume for better background feel
+let currentFactionIsRed = true // Keep track of faction state
 
 function logAudioError(audio, label) {
-  audio.onerror = () => {
-    console.error(`[v0] Audio Error: '${label}' could not be loaded from root.`)
-    console.error(`[v0] Status: ${audio.networkState} / ${audio.readyState}`)
-  }
+  if (!audio) return
+  audio.addEventListener("error", (e) => {
+    console.error(`[v0] Audio Error: '${label}' could not be loaded.`, e)
+    console.log(`[v0] Network State: ${audio.networkState}, Ready State: ${audio.readyState}`)
+    console.log(`[v0] Source path: ${audio.currentSrc || "Unknown"}`)
+  })
+
+  audio.addEventListener("canplaythrough", () => {
+    console.log(`[v0] Audio Ready: '${label}' loaded successfully.`)
+  })
 }
 
-if (audioSith) logAudioError(audioSith, "sith.mp3")
-if (audioJedi) logAudioError(audioJedi, "jedi.mp3")
+logAudioError(audioSith, "sith.mp3")
+logAudioError(audioJedi, "jedi.mp3")
 
 function initAudio() {
-  console.log("[v0] Audio system standby. Waiting for player interaction...")
+  console.log("[v0] Audio system standby. Move mouse to start playback.")
 
   const startAudio = () => {
     if (audioContextStarted) return
     audioContextStarted = true
 
-    console.log("[v0] Interaction detected. Waking up audio streams...")
+    console.log("[v0] Interaction detected. Initializing sequential playback...")
 
-    const setupAudio = (audio) => {
-      if (!audio) return
-      audio.volume = 0
-      audio.play().catch((e) => console.warn(`[v0] Autoplay blocked for ${audio.id}:`, e))
+    if (audioSith) {
+      audioSith.volume = 0
+      audioSith.loop = false // Disable loop for sequential
+      audioSith
+        .play()
+        .then(() => {
+          console.log("[v0] Sith audio playback started.")
+          syncAudioToFaction()
+        })
+        .catch((e) => console.error("[v0] Sith playback failed:", e))
+
+      audioSith.onended = () => {
+        console.log("[v0] Sith audio ended. Starting Jedi...")
+        if (audioJedi) {
+          audioJedi.currentTime = 0
+          audioJedi.play()
+          syncAudioToFaction()
+        }
+      }
     }
 
-    setupAudio(audioSith)
-    setupAudio(audioJedi)
+    if (audioJedi) {
+      audioJedi.volume = 0
+      audioJedi.loop = false // Disable loop for sequential
+      audioJedi.onended = () => {
+        console.log("[v0] Jedi audio ended. Restarting Sith...")
+        if (audioSith) {
+          audioSith.currentTime = 0
+          audioSith.play()
+          syncAudioToFaction()
+        }
+      }
+    }
 
-    // Initial sync
-    syncAudioToFaction()
-
-    // Remove listeners to save resources
+    // Remove listeners
     document.removeEventListener("mousemove", startAudio)
     document.removeEventListener("mousedown", startAudio)
   }
@@ -323,12 +352,14 @@ function initAudio() {
 function syncAudioToFaction() {
   const sidepanel = document.getElementById("sidepanel")
   const isRed = sidepanel?.classList.contains("color-red")
+  currentFactionIsRed = isRed
 
+  // Volume cross-fade based on faction, while tracks play sequentially
   if (isRed) {
     fadeAudio(audioSith, targetVolume)
-    fadeAudio(audioJedi, 0)
+    fadeAudio(audioJedi, 0.02) // Keep other track very slightly audible for atmosphere
   } else {
-    fadeAudio(audioSith, 0)
+    fadeAudio(audioSith, 0.02)
     fadeAudio(audioJedi, targetVolume)
   }
 }
@@ -341,19 +372,26 @@ function fadeAudio(audio, target) {
   if (audio.fadeTimer) clearInterval(audio.fadeTimer)
 
   audio.fadeTimer = setInterval(() => {
+    // Ensure we don't fade up if the audio isn't actually playing
+    if (target > 0 && audio.paused) {
+      clearInterval(audio.fadeTimer)
+      return
+    }
+
     if (audio.volume < target) {
       audio.volume = Math.min(target, audio.volume + step)
     } else if (audio.volume > target) {
       audio.volume = Math.max(target, audio.volume - step)
     }
 
-    if (Math.abs(audio.volume - target) < 0.001) {
+    if (Math.abs(audio.volume - target) < 0.01) {
       audio.volume = target
       clearInterval(audio.fadeTimer)
     }
   }, intervalTime)
 }
 
+// Hook into the faction switch
 const originalUpdateFraction = updateFraction
 updateFraction = (isRed) => {
   originalUpdateFraction(isRed)
