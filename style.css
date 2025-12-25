@@ -9,6 +9,34 @@ body {
   overflow: hidden;
   background-color: #050505;
   text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  /* Hide default cursor to use custom one */
+  cursor: none;
+}
+
+/* Custom cursor styling for better visibility in GMod environment */
+#custom-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1000;
+  mix-blend-mode: difference;
+  transition: transform 0.1s ease-out;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+#custom-cursor::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* added scanline overlay styling */
@@ -28,13 +56,16 @@ body {
 /* HINTERGRUND */
 #background {
   position: fixed;
-  width: 100%;
-  height: 100%;
+  /* Increase size to prevent white edges during movement */
+  width: 110%;
+  height: 110%;
+  top: -5%;
+  left: -5%;
   background: url("background.jpg") center / cover no-repeat;
   filter: brightness(0.55);
   z-index: -1;
-  /* added subtle background pulse animation */
-  animation: bgPulse 10s ease-in-out infinite;
+  /* Remove pulse animation to handle movement via JS */
+  transition: transform 0.2s ease-out;
 }
 
 @keyframes bgPulse {
