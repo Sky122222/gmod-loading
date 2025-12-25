@@ -98,15 +98,15 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 
 const songs = [
   {
-    file: "https://github.com/Sky122222/music/raw/refs/heads/main/coruscant-the-capital.mp3",
+    file: "https://raw.githubusercontent.com/Sky122222/music/main/coruscant-the-capital.mp3",
     title: "Coruscant: The Capital",
   },
   {
-    file: "https://github.com/Sky122222/music/raw/refs/heads/main/dromund-kaas-the-seat-of-power.mp3",
+    file: "https://raw.githubusercontent.com/Sky122222/music/main/dromund-kaas-the-seat-of-power.mp3",
     title: "Dromund Kaas: The Seat of Power",
   },
   {
-    file: "https://github.com/Sky122222/music/raw/refs/heads/main/the-blood-of-kings.mp3",
+    file: "https://raw.githubusercontent.com/Sky122222/music/main/the-blood-of-kings.mp3",
     title: "The Blood of Kings",
   },
 ]
