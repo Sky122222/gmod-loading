@@ -13,7 +13,7 @@ body {
   cursor: none;
 }
 
-/* Custom cursor styling for better visibility in GMod environment */
+/* Custom cursor to bypass GMod's hidden mouse issue */
 #custom-cursor {
   position: fixed;
   width: 20px;
@@ -49,7 +49,8 @@ body {
   background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
   background-size: 100% 4px;
   z-index: 100;
-  pointer-events: none;
+  /* reverted pointer-events to auto to block interactions if desired */
+  pointer-events: auto;
   opacity: 0.3;
 }
 
@@ -87,7 +88,8 @@ body {
   height: 40px;
   border: 2px solid rgba(255, 255, 255, 0.1);
   z-index: 5;
-  pointer-events: none;
+  /* reverted pointer-events to auto */
+  pointer-events: auto;
 }
 .top-left {
   top: 15px;
@@ -135,6 +137,124 @@ body {
   }
   50% {
     transform: translateY(-10px);
+  }
+}
+
+/* Added Hologram Styles */
+#hologram-container {
+  position: fixed;
+  top: 180px;
+  right: 30px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hologram-projection {
+  position: relative;
+  width: 150px;
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+.hologram-character {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  filter: sepia(100%) hue-rotate(190deg) brightness(1.2) contrast(1.2);
+  animation: holoFloat 4s ease-in-out infinite, holoGlitch 5s step-end infinite;
+}
+
+.hologram-character.sith {
+  filter: sepia(100%) hue-rotate(-50deg) brightness(1.2) contrast(1.2);
+}
+
+.hologram-character.active {
+  opacity: 0.7;
+}
+
+.hologram-character img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hologram-beam {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 150px;
+  background: radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.2) 0%, rgba(0, 255, 255, 0) 70%);
+  clip-path: polygon(20% 100%, 80% 100%, 100% 0, 0 0);
+  animation: beamFlicker 0.1s infinite;
+}
+
+.hologram-message {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #00ffff;
+  width: 100%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+#hologram-text {
+  margin: 0;
+  font-family: "Orbitron", sans-serif;
+  font-size: 14px;
+  color: #00ffff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+@keyframes holoFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.02);
+  }
+}
+
+@keyframes holoGlitch {
+  0%,
+  95%,
+  100% {
+    opacity: 0.7;
+    transform: translateX(0);
+  }
+  96% {
+    opacity: 0.4;
+    transform: translateX(3px);
+  }
+  97% {
+    opacity: 0.8;
+    transform: translateX(-3px);
+  }
+  98% {
+    opacity: 0.2;
+    transform: translateX(5px);
+  }
+}
+
+@keyframes beamFlicker {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.25;
   }
 }
 
@@ -243,9 +363,10 @@ body {
 }
 
 /* Changelogs */
+/* Removed scrollbars and fixed panel layouts to be non-scrollable */
 .changelogs {
-  max-height: 140px;
-  overflow-y: auto;
+  max-height: none;
+  overflow: hidden;
 }
 
 .changelog-item {
@@ -289,6 +410,10 @@ body {
   font-size: 13px;
   font-weight: 500;
   transition: transform 0.2s, opacity 0.2s;
+  /* Ensure the buttons are clickable and have the pointer cursor */
+  cursor: pointer;
+  position: relative;
+  z-index: 200;
 }
 
 .social-btn:hover {
@@ -319,8 +444,8 @@ body {
 
 .team-scroll {
   flex: 1;
-  overflow-y: auto;
-  max-height: 120px;
+  overflow: hidden; /* Disabled scrolling */
+  max-height: none;
 }
 
 .team-member {
