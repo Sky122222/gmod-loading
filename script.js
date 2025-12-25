@@ -25,7 +25,9 @@ let filesNeeded = 0
 function SetProgressChanged(progress) {
   const bar = document.getElementById("progress")
   if (bar) {
-    bar.style.width = progress + "%"
+    // Ensure progress is a number and within 0-100
+    const val = Math.min(Math.max(Number.parseFloat(progress) || 0, 0), 100)
+    bar.style.width = val + "%"
   }
 }
 
@@ -37,10 +39,8 @@ function SetStatusChanged(status) {
     text.innerText = status
   }
 
-  if (downloadInfo && filesTotal > 0) {
-    const downloaded = filesTotal - filesNeeded
-    downloadInfo.innerText = "Dateien: " + downloaded + " / " + filesTotal
-  }
+  // GMod calls this during the loading process
+  updateDownloadInfo()
 }
 
 function SetFilesNeeded(needed) {
@@ -277,55 +277,54 @@ let fakeProgress = 0
 
 let currentAudioIndex = 0 // 0 for Sith, 1 for Jedi
 let audioStarted = false
-const audioSith = document.getElementById("audio-sith")
-const audioJedi = document.getElementById("audio-jedi")
-const playlist = [audioSith, audioJedi]
-const targetVolume = 0.3
 
 function initAudio() {
+  const audioSith = document.getElementById("audio-sith")
+  const audioJedi = document.getElementById("audio-jedi")
+  const playlist = [audioSith, audioJedi]
+  const targetVolume = 0.25
+
   console.log("[v0] Sequential Audio System Initializing...")
 
   playlist.forEach((audio, index) => {
     if (!audio) return
     audio.volume = targetVolume
+    audio.loop = false // Ensure loop is off for sequential playback
 
     audio.onended = () => {
       console.log(`[v0] Track ${index} ended. Moving to next...`)
       currentAudioIndex = (index + 1) % playlist.length
-      playCurrentTrack()
+      playCurrentTrack(playlist)
     }
-
-    audio.onplay = () => console.log(`[v0] Playing: ${audio.id}`)
-    audio.onerror = (e) => console.error(`[v0] Error loading ${audio.id}`, e)
   })
 
-  // Start sequence
-  const unlock = () => {
+  const startPlayback = () => {
     if (audioStarted) return
-    console.log("[v0] User interaction detected. Starting sequence...")
-    playCurrentTrack()
     audioStarted = true
+    playCurrentTrack(playlist)
 
-    document.removeEventListener("mousemove", unlock)
-    document.removeEventListener("mousedown", unlock)
-    document.removeEventListener("keydown", unlock)
+    // Remove listeners once audio is unlocked
+    ;["mousemove", "mousedown", "keydown", "touchstart"].forEach((event) => {
+      document.removeEventListener(event, startPlayback)
+    })
   }
 
-  document.addEventListener("mousemove", unlock)
-  document.addEventListener("mousedown", unlock)
-  document.addEventListener("keydown", unlock)
+  // Add multiple interaction listeners for better browser/GMod compatibility
+  ;["mousemove", "mousedown", "keydown", "touchstart"].forEach((event) => {
+    document.addEventListener(event, startPlayback)
+  })
 
-  // Try immediate autoplay for GMod
-  playCurrentTrack()
+  // GMod specific attempt
+  playCurrentTrack(playlist)
 }
 
-function playCurrentTrack() {
+function playCurrentTrack(playlist) {
   const track = playlist[currentAudioIndex]
   if (!track) return
 
-  // Stop all others just in case
+  // Crucial: Stop and reset all other tracks before playing the next one
   playlist.forEach((t) => {
-    if (t !== track) {
+    if (t && t !== track) {
       t.pause()
       t.currentTime = 0
     }
@@ -335,18 +334,11 @@ function playCurrentTrack() {
     .play()
     .then(() => {
       audioStarted = true
-      console.log(`[v0] Sequential playback active: ${track.id}`)
+      console.log(`[v0] Playing: ${track.id}`)
     })
     .catch((e) => {
-      console.warn(`[v0] Autoplay blocked for ${track.id}. Waiting for interaction.`, e)
+      console.warn(`[v0] Playback blocked for ${track.id}. Waiting for interaction.`)
     })
-}
-
-const originalUpdateFraction = updateFraction
-updateFraction = (isRed) => {
-  if (typeof originalUpdateFraction === "function") {
-    originalUpdateFraction(isRed)
-  }
 }
 
 startFakeLoading()
