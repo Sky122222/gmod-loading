@@ -19,6 +19,31 @@ body {
   z-index: -1;
 }
 
+/* NEUES LOGO OBEN RECHTS */
+#top-right-logo {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  width: 350px;
+  z-index: 20;
+  animation: float 4s ease-in-out infinite;
+}
+
+#top-right-logo img {
+  width: 100%;
+  filter: drop-shadow(0 0 15px rgba(184, 50, 50, 0.4));
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 /* SEITENPANEL */
 #sidepanel {
   position: fixed;
