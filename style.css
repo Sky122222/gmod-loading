@@ -141,11 +141,12 @@ body {
 }
 
 /* Added Hologram Styles */
+/* Repositioned Hologram to bottom-right and increased message box size */
 #hologram-container {
   position: fixed;
-  top: 180px;
-  right: 30px;
-  width: 320px;
+  bottom: 80px; /* Adjusted to sit above terminal corner */
+  right: 60px;
+  width: 400px; /* Larger width for better message display */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -155,9 +156,9 @@ body {
 
 .hologram-projection {
   position: relative;
-  width: 150px;
-  height: 200px;
-  margin-bottom: 20px;
+  width: 200px; /* Slightly larger projection */
+  height: 300px;
+  margin-bottom: 10px;
 }
 
 .hologram-character {
@@ -173,11 +174,16 @@ body {
 }
 
 .hologram-character.sith {
-  filter: sepia(100%) hue-rotate(-50deg) brightness(1.2) contrast(1.2);
+  filter: sepia(100%) hue-rotate(-50deg) brightness(1.2) contrast(1.2) drop-shadow(0 0 15px rgba(255, 0, 0, 0.6));
+}
+
+/* Updated Jedi filter to be more blue/cyan */
+.hologram-character.jedi {
+  filter: sepia(100%) hue-rotate(180deg) brightness(1.2) contrast(1.2) drop-shadow(0 0 15px rgba(0, 255, 255, 0.6));
 }
 
 .hologram-character.active {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .hologram-character img {
@@ -191,30 +197,34 @@ body {
   bottom: -20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 100px;
-  height: 150px;
-  background: radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.2) 0%, rgba(0, 255, 255, 0) 70%);
+  width: 150px; /* Wider beam for larger characters */
+  height: 200px;
+  background: radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.25) 0%, rgba(0, 255, 255, 0) 70%);
   clip-path: polygon(20% 100%, 80% 100%, 100% 0, 0 0);
   animation: beamFlicker 0.1s infinite;
 }
 
+/* Made the message panel larger and more prominent */
 .hologram-message {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
-  padding: 10px 15px;
-  border-radius: 8px;
-  border-left: 4px solid #00ffff;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  padding: 15px 25px;
+  border-radius: 4px;
+  border-right: 4px solid #00ffff;
+  border-left: none; /* Changed side to match right alignment */
   width: 100%;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 255, 255, 0.2);
+  text-align: right;
 }
 
 #hologram-text {
   margin: 0;
   font-family: "Orbitron", sans-serif;
-  font-size: 14px;
+  font-size: 16px; /* Slightly larger text */
   color: #00ffff;
-  letter-spacing: 0.5px;
-  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+  line-height: 1.4;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
 }
 
 @keyframes holoFloat {
@@ -595,4 +605,3 @@ body {
   z-index: 15;
   min-width: 300px;
 }
-
