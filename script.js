@@ -236,7 +236,8 @@ function typeWriter(element, text) {
 function startFakeLoading() {
   initColorCycle() // This now controls the hologram sync too
   initParallax()
-  initAudio() // Initialize audio system
+
+  initAudio()
 
   SetFilesTotal(150)
   SetFilesNeeded(150)
@@ -277,14 +278,12 @@ let fakeProgress = 0
 let audioContextStarted = false
 const audioSith = document.getElementById("audio-sith")
 const audioJedi = document.getElementById("audio-jedi")
-const targetVolume = 0.3 // Increased volume slightly for better testing
+const targetVolume = 0.2 // Comfortable background volume
 
-// Improved error logging with exact URLs
 function logAudioError(audio, label) {
   audio.onerror = () => {
-    console.error(`[v0] CRITICAL: '${label}' failed to load.`)
-    console.error(`[v0] Attempted URL: ${audio.currentSrc || audio.src}`)
-    console.error(`[v0] Error Code: ${audio.error ? audio.error.code : "unknown"}`)
+    console.error(`[v0] Audio Error: '${label}' could not be loaded from root.`)
+    console.error(`[v0] Status: ${audio.networkState} / ${audio.readyState}`)
   }
 }
 
@@ -292,51 +291,38 @@ if (audioSith) logAudioError(audioSith, "sith.mp3")
 if (audioJedi) logAudioError(audioJedi, "jedi.mp3")
 
 function initAudio() {
-  console.log("[v0] Audio system standby. Waiting for interaction...")
+  console.log("[v0] Audio system standby. Waiting for player interaction...")
 
   const startAudio = () => {
     if (audioContextStarted) return
     audioContextStarted = true
 
-    console.log("[v0] Interaction detected. Initializing playback...")
+    console.log("[v0] Interaction detected. Waking up audio streams...")
 
-    // Resetting and loading to ensure clean state
     const setupAudio = (audio) => {
-      audio.pause()
-      audio.currentTime = 0
+      if (!audio) return
       audio.volume = 0
-      audio.load()
-
-      const playPromise = audio.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => console.log(`[v0] ${audio.id} playback started`))
-          .catch((e) => console.warn(`[v0] ${audio.id} playback blocked:`, e))
-      }
+      audio.play().catch((e) => console.warn(`[v0] Autoplay blocked for ${audio.id}:`, e))
     }
 
-    if (audioSith) setupAudio(audioSith)
-    if (audioJedi) setupAudio(audioJedi)
+    setupAudio(audioSith)
+    setupAudio(audioJedi)
 
-    // Sync faction immediately
-    setTimeout(syncAudioToFaction, 100)
+    // Initial sync
+    syncAudioToFaction()
 
-    // Remove listeners
+    // Remove listeners to save resources
     document.removeEventListener("mousemove", startAudio)
     document.removeEventListener("mousedown", startAudio)
-    document.removeEventListener("keydown", startAudio)
   }
 
   document.addEventListener("mousemove", startAudio)
   document.addEventListener("mousedown", startAudio)
-  document.addEventListener("keydown", startAudio)
 }
 
 function syncAudioToFaction() {
   const sidepanel = document.getElementById("sidepanel")
-  const isRed = sidepanel.classList.contains("color-red")
-
-  console.log("[v0] Syncing audio to: " + (isRed ? "Sith (Red)" : "Jedi (Blue)"))
+  const isRed = sidepanel?.classList.contains("color-red")
 
   if (isRed) {
     fadeAudio(audioSith, targetVolume)
@@ -348,8 +334,9 @@ function syncAudioToFaction() {
 }
 
 function fadeAudio(audio, target) {
-  const step = 0.02 // Smaller steps for smoother fade
-  const intervalTime = 50 // Faster update rate
+  if (!audio) return
+  const step = 0.01
+  const intervalTime = 50
 
   if (audio.fadeTimer) clearInterval(audio.fadeTimer)
 
@@ -360,15 +347,13 @@ function fadeAudio(audio, target) {
       audio.volume = Math.max(target, audio.volume - step)
     }
 
-    if (Math.abs(audio.volume - target) < 0.01) {
+    if (Math.abs(audio.volume - target) < 0.001) {
       audio.volume = target
       clearInterval(audio.fadeTimer)
-      console.log(`[v0] Audio ${audio.id} reached volume ${target}`)
     }
   }, intervalTime)
 }
 
-// Update the faction cycle to also sync audio
 const originalUpdateFraction = updateFraction
 updateFraction = (isRed) => {
   originalUpdateFraction(isRed)
