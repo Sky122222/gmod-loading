@@ -277,38 +277,51 @@ let fakeProgress = 0
 let audioContextStarted = false
 const audioSith = document.getElementById("audio-sith")
 const audioJedi = document.getElementById("audio-jedi")
-const targetVolume = 0.25 // Set volume to 25% (calm background)
+const targetVolume = 0.3 // Increased volume slightly for better testing
+
+// Log audio errors immediately
+if (audioSith)
+  audioSith.onerror = () => console.error("[v0] CRITICAL: 'sith.mp3' failed to load. Check file name and existence.")
+if (audioJedi)
+  audioJedi.onerror = () => console.error("[v0] CRITICAL: 'jedi.mp3' failed to load. Check file name and existence.")
 
 function initAudio() {
-  console.log("[v0] Initializing audio system...")
+  console.log("[v0] Audio system standby. Waiting for interaction...")
 
   const startAudio = () => {
     if (audioContextStarted) return
     audioContextStarted = true
 
-    console.log("[v0] Interaction detected, attempting to play audio...")
+    console.log("[v0] Interaction detected. Initializing playback...")
 
-    // Start both muted and fade in the active one
+    // Force load to ensure the browser tries to fetch the files
+    audioSith.load()
+    audioJedi.load()
+
+    // Start muted
     audioSith.volume = 0
     audioJedi.volume = 0
 
+    // Play both tracks (synced loop)
     const playSith = audioSith.play()
-    if (playSith !== undefined) {
-      playSith.catch((e) => console.log("[v0] Sith audio play failed. Check if 'sith.mp3' exists in root folder:", e))
-    }
-
     const playJedi = audioJedi.play()
-    if (playJedi !== undefined) {
-      playJedi.catch((e) => console.log("[v0] Jedi audio play failed. Check if 'jedi.mp3' exists in root folder:", e))
+
+    if (playSith !== undefined) {
+      playSith
+        .then(() => console.log("[v0] Sith audio playing (muted)"))
+        .catch((e) => console.warn("[v0] Sith audio blocked:", e))
     }
 
-    // Initial fade in based on current faction
-    const sidepanel = document.getElementById("sidepanel")
-    const isRed = sidepanel.classList.contains("color-red")
+    if (playJedi !== undefined) {
+      playJedi
+        .then(() => console.log("[v0] Jedi audio playing (muted)"))
+        .catch((e) => console.warn("[v0] Jedi audio blocked:", e))
+    }
 
-    console.log("[v0] Initial faction is " + (isRed ? "Sith" : "Jedi"))
-    fadeAudio(isRed ? audioSith : audioJedi, targetVolume)
+    // Sync faction immediately
+    syncAudioToFaction()
 
+    // Remove listeners
     document.removeEventListener("mousemove", startAudio)
     document.removeEventListener("mousedown", startAudio)
     document.removeEventListener("keydown", startAudio)
@@ -319,12 +332,28 @@ function initAudio() {
   document.addEventListener("keydown", startAudio)
 }
 
-function fadeAudio(audio, target) {
-  const duration = 3000 // 3 second fade
-  const step = 0.05
-  const interval = duration * step
+function syncAudioToFaction() {
+  const sidepanel = document.getElementById("sidepanel")
+  const isRed = sidepanel.classList.contains("color-red")
 
-  const fade = setInterval(() => {
+  console.log("[v0] Syncing audio to: " + (isRed ? "Sith (Red)" : "Jedi (Blue)"))
+
+  if (isRed) {
+    fadeAudio(audioSith, targetVolume)
+    fadeAudio(audioJedi, 0)
+  } else {
+    fadeAudio(audioSith, 0)
+    fadeAudio(audioJedi, targetVolume)
+  }
+}
+
+function fadeAudio(audio, target) {
+  const step = 0.02 // Smaller steps for smoother fade
+  const intervalTime = 50 // Faster update rate
+
+  if (audio.fadeTimer) clearInterval(audio.fadeTimer)
+
+  audio.fadeTimer = setInterval(() => {
     if (audio.volume < target) {
       audio.volume = Math.min(target, audio.volume + step)
     } else if (audio.volume > target) {
@@ -333,10 +362,19 @@ function fadeAudio(audio, target) {
 
     if (Math.abs(audio.volume - target) < 0.01) {
       audio.volume = target
-      clearInterval(fade)
+      clearInterval(audio.fadeTimer)
+      console.log(`[v0] Audio ${audio.id} reached volume ${target}`)
     }
-  }, interval)
+  }, intervalTime)
+}
+
+// Update the faction cycle to also sync audio
+const originalUpdateFraction = updateFraction
+updateFraction = (isRed) => {
+  originalUpdateFraction(isRed)
+  if (audioContextStarted) {
+    syncAudioToFaction()
+  }
 }
 
 startFakeLoading()
-
