@@ -97,9 +97,18 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 // ============================================
 
 const songs = [
-  { file: "the-blood-of-kings.mp3", title: "The Blood of Kings" },
-  { file: "coruscant-the-capital.mp3", title: "Coruscant, The Capital" },
-  { file: "dromund-kaas-the-seat-of-power.mp3", title: "Dromund Kaas, The Seat of Power" },
+  {
+    file: "https://www.dropbox.com/scl/fi/mm9qzwo2mpxb87opj70t3/dromund-kaas-the-seat-of-power.mp3?rlkey=7891pxe1ui6xzfru50ltcnv82&st=vk9f8nsx&dl=1",
+    title: "Dromund Kaas: The Seat of Power",
+  },
+  {
+    file: "https://www.dropbox.com/scl/fi/l2fj99nwu03l93k08e8zx/coruscant-the-capital.mp3?rlkey=j68pojym2oei1yculurkhu65u&st=2cmt1q3k&dl=1",
+    title: "Coruscant: The Capital",
+  },
+  {
+    file: "https://www.dropbox.com/scl/fi/njvmtnj8n4ryg1ilq7j8c/the-blood-of-kings.mp3?rlkey=011ajr4vdc5q0075nkkksw035&st=ajl6mfjg&dl=1",
+    title: "The Blood of Kings",
+  },
 ]
 
 let currentSongIndex = 0
