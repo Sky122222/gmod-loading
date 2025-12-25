@@ -4,7 +4,8 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
+  /* updated to Rajdhani as primary body font for better readability and sci-fi vibe */
+  font-family: "Rajdhani", sans-serif;
   color: white;
   overflow: hidden;
   background-color: #050505; /* base background color */
@@ -60,7 +61,8 @@ body {
 
 #top-right-logo img {
   width: 100%;
-  filter: drop-shadow(0 0 15px rgba(184, 50, 50, 0.4));
+  /* Added transition for the glow color cycle */
+  transition: filter 2s ease-in-out;
 }
 
 @keyframes float {
@@ -80,25 +82,58 @@ body {
   top: 30px;
   bottom: 30px;
   width: 320px;
-  /* Adjusted colors to match the sci-fi theme: dark grey/blue to deep red */
-  background: linear-gradient(180deg, rgba(20, 20, 25, 0.9), rgba(120, 30, 30, 0.9));
+  /* Set base background and transition for the color cycle */
+  background: linear-gradient(180deg, rgba(20, 20, 25, 0.95), rgba(120, 30, 30, 0.9));
   border-radius: 14px;
   padding: 25px;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: background 2s ease-in-out, border-color 2s ease-in-out, box-shadow 2s ease-in-out;
+  border: 1px solid rgba(184, 50, 50, 0.3);
+}
+
+/* Added classes for the 10s interval color cycle */
+#sidepanel.color-red {
+  background: linear-gradient(180deg, rgba(15, 10, 10, 0.98), rgba(60, 10, 10, 0.95));
+  border-color: rgba(184, 50, 50, 0.5);
+  /* added glowing shadow to panel */
+  box-shadow: 0 0 30px rgba(184, 50, 50, 0.2);
+}
+
+#sidepanel.color-blue {
+  background: linear-gradient(180deg, rgba(10, 10, 15, 0.98), rgba(10, 30, 60, 0.95));
+  border-color: rgba(47, 95, 210, 0.5);
+  /* added glowing shadow to panel */
+  box-shadow: 0 0 30px rgba(47, 95, 210, 0.2);
+}
+
+/* Logo glow cycle classes */
+#top-right-logo.glow-red img {
+  filter: drop-shadow(0 0 20px rgba(184, 50, 50, 0.6));
+}
+
+#top-right-logo.glow-blue img {
+  filter: drop-shadow(0 0 20px rgba(47, 95, 210, 0.6));
 }
 
 /* PROFIL */
 .profile h2 {
   margin: 0;
-  font-size: 26px;
+  /* updated headings to Orbitron for a high-tech/military feel */
+  font-family: "Orbitron", sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .subtitle {
-  font-size: 13px;
-  opacity: 0.6;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.8;
+  /* Rajdhani for secondary text */
+  font-family: "Rajdhani", sans-serif;
 }
 
 /* AVATAR */
@@ -120,11 +155,16 @@ body {
 }
 
 .section h3 {
-  margin-bottom: 10px;
-  font-size: 14px;
-  opacity: 0.7;
+  margin-bottom: 12px;
+  /* Orbitron for section titles */
+  font-family: "Orbitron", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.9;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  border-left: 3px solid currentColor;
+  padding-left: 10px;
 }
 
 .section p {
