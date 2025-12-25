@@ -236,7 +236,7 @@ function typeWriter(element, text) {
 function startFakeLoading() {
   initColorCycle() // This now controls the hologram sync too
   initParallax()
-  // initHologram() - Removed this as it's now integrated into initColorCycle for perfect sync
+  initAudio() // Initialize audio system
 
   SetFilesTotal(150)
   SetFilesNeeded(150)
@@ -274,5 +274,54 @@ function startFakeLoading() {
 
 let fakeProgress = 0
 
+let audioContextStarted = false
+const audioSith = document.getElementById("audio-sith")
+const audioJedi = document.getElementById("audio-jedi")
+const targetVolume = 0.25 // Set volume to 25% (calm background)
+
+function initAudio() {
+  // GMod/Chromium often needs interaction to start audio context
+  const startAudio = () => {
+    if (audioContextStarted) return
+    audioContextStarted = true
+
+    // Start both muted and fade in the active one
+    audioSith.volume = 0
+    audioJedi.volume = 0
+    audioSith.play().catch((e) => console.log("[v0] Sith audio play failed:", e))
+    audioJedi.play().catch((e) => console.log("[v0] Jedi audio play failed:", e))
+
+    // Initial fade in based on current faction
+    const sidepanel = document.getElementById("sidepanel")
+    const isRed = sidepanel.classList.contains("color-red")
+    fadeAudio(isRed ? audioSith : audioJedi, targetVolume)
+
+    document.removeEventListener("mousemove", startAudio)
+    document.removeEventListener("mousedown", startAudio)
+    console.log("[v0] Audio context started via interaction")
+  }
+
+  document.addEventListener("mousemove", startAudio)
+  document.addEventListener("mousedown", startAudio)
+}
+
+function fadeAudio(audio, target) {
+  const duration = 3000 // 3 second fade
+  const step = 0.05
+  const interval = duration * step
+
+  const fade = setInterval(() => {
+    if (audio.volume < target) {
+      audio.volume = Math.min(target, audio.volume + step)
+    } else if (audio.volume > target) {
+      audio.volume = Math.max(target, audio.volume - step)
+    }
+
+    if (Math.abs(audio.volume - target) < 0.01) {
+      audio.volume = target
+      clearInterval(fade)
+    }
+  }, interval)
+}
+
 startFakeLoading()
-                          
