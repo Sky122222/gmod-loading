@@ -9,8 +9,6 @@ function getUrlParam(param) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const steamid = getUrlParam("steamid")
-  const mapname = getUrlParam("mapname")
-  const gamemode = getUrlParam("gamemode")
 
   if (steamid) {
     const avatarEl = document.getElementById("avatar")
@@ -18,16 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
       avatarEl.style.backgroundImage =
         "url('https://steamcommunity.com/actions/DisplayAvatar?steamid=" + steamid + "&avatarsize=full')"
     }
-  }
-
-  if (mapname) {
-    const mapEl = document.getElementById("map")
-    if (mapEl) mapEl.innerText = "Map: " + mapname
-  }
-
-  if (gamemode) {
-    const gamemodeEl = document.getElementById("gamemode")
-    if (gamemodeEl) gamemodeEl.innerText = "Gamemode: " + gamemode
   }
 })
 
@@ -75,13 +63,11 @@ function updateDownloadInfo() {
 
 function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
   const serverEl = document.getElementById("servername")
-  const mapEl = document.getElementById("map")
-  const gamemodeEl = document.getElementById("gamemode")
+  const playerCountEl = document.getElementById("player-count")
   const avatarEl = document.getElementById("avatar")
 
-  if (serverEl && servername) serverEl.innerText = servername
-  if (mapEl) mapEl.innerText = "Map: " + mapname
-  if (gamemodeEl) gamemodeEl.innerText = "Gamemode: " + gamemode
+  if (serverEl && servername) serverEl.innerText = "The Eternal Conflict"
+  if (playerCountEl && maxplayers) playerCountEl.innerText = "Slots: 0 / " + maxplayers
 
   if (steamid && avatarEl) {
     avatarEl.style.backgroundImage =
@@ -93,10 +79,10 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 // INFO-TEXT ROTATION
 // ============================================
 const infoTexts = [
-  "Willkommen auf unserem Roleplay Server.",
+  "Willkommen bei Infinity Gaming.",
+  "Erlebe den ewigen Konflikt auf unserem Server.",
   "Fragen? Unser Support hilft dir gerne auf Discord.",
   "Bitte lies dir vor Spielbeginn unsere Regeln durch.",
-  "Events finden regelmäßig auf dem Server statt.",
   "Respektvolles Roleplay steht bei uns an erster Stelle.",
 ]
 
@@ -161,7 +147,7 @@ function startFakeLoading() {
     }
   }, 2000)
 
-  GameDetails("Mein RP Server", "", "rp_downtown_v4c", 64, "76561198000000000", "DarkRP")
+  GameDetails("The Eternal Conflict", "", "rp_downtown_v4c", 64, "76561198000000000", "DarkRP")
 }
 
 startFakeLoading()
