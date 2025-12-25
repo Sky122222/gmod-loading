@@ -78,21 +78,23 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 // ============================================
 function initColorCycle() {
   const sidepanel = document.getElementById("sidepanel")
+  const topPanel = document.getElementById("top-right-panel") // get the panel, not just logo
   const topLogo = document.getElementById("top-right-logo")
   let isRed = true
 
   // Initial state
   sidepanel.classList.add("color-red")
-  topLogo.classList.add("glow-red")
+  topPanel.classList.add("color-red")
 
   setInterval(() => {
     isRed = !isRed
     if (isRed) {
       sidepanel.classList.replace("color-blue", "color-red")
-      topLogo.classList.replace("glow-blue", "glow-red")
+      topPanel.classList.replace("color-blue", "color-red")
     } else {
       sidepanel.classList.replace("color-red", "color-blue")
-      topLogo.classList.replace("glow-red", "glow-blue")
+      topPanel.classList.replace("color-blue", "color-red") // This was a bug in previous version, fixed to color-blue
+      topPanel.classList.replace("color-red", "color-blue")
     }
   }, 10000) // 10 second interval
 }
@@ -170,32 +172,39 @@ function initHologram() {
   const characters = document.querySelectorAll(".hologram-character")
   const textEl = document.getElementById("hologram-text")
   const beam = document.querySelector(".hologram-beam")
+  const messageBox = document.querySelector(".hologram-message") // select message box for border sync
 
   setInterval(() => {
     holoIndex = (holoIndex + 1) % holoMessages.length
     const currentMsg = holoMessages[holoIndex]
 
-    // Update character visibility
-    characters.forEach((c) => c.classList.remove("active"))
-    const nextChar = document.querySelector(`.hologram-character.${currentMsg.char}`)
-    if (nextChar) nextChar.classList.add("active")
+    // Update character visibility with absolute toggle
+    characters.forEach((c) => {
+      c.classList.remove("active")
+    })
+
+    // Tiny delay to ensure fade out starts before fade in for clean transition
+    setTimeout(() => {
+      const nextChar = document.querySelector(`.hologram-character.${currentMsg.char}`)
+      if (nextChar) nextChar.classList.add("active")
+    }, 50)
 
     // Update colors based on faction
     if (currentMsg.char === "sith") {
       textEl.style.color = "#ff3333"
-      textEl.parentElement.style.borderRightColor = "#ff3333"
+      messageBox.style.borderRightColor = "#ff3333" // sync border color
       textEl.style.textShadow = "0 0 8px rgba(255, 51, 51, 0.6)"
       beam.style.background = "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.3) 0%, rgba(255, 50, 50, 0) 70%)"
     } else {
       textEl.style.color = "#00ffff"
-      textEl.parentElement.style.borderRightColor = "#00ffff"
+      messageBox.style.borderRightColor = "#00ffff" // sync border color
       textEl.style.textShadow = "0 0 8px rgba(0, 255, 255, 0.6)"
       beam.style.background = "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.3) 0%, rgba(0, 255, 255, 0) 70%)"
     }
 
     // Typewriter effect
     typeWriter(textEl, currentMsg.text)
-  }, 5000)
+  }, 10000) // Synced to 10s color cycle of main panels
 
   // Initial setup
   const firstMsg = holoMessages[0]
