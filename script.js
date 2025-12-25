@@ -101,11 +101,15 @@ function updateFraction(isRed) {
 
   // Update Main Panels
   if (isRed) {
-    sidepanel.classList.replace("color-blue", "color-red") || sidepanel.classList.add("color-red")
-    topPanel.classList.replace("color-blue", "color-red") || topPanel.classList.add("color-red")
+    sidepanel.classList.remove("color-blue")
+    sidepanel.classList.add("color-red")
+    topPanel.classList.remove("color-blue")
+    topPanel.classList.add("color-red")
   } else {
-    sidepanel.classList.replace("color-red", "color-blue") || sidepanel.classList.add("color-blue")
-    topPanel.classList.replace("color-red", "color-blue") || topPanel.classList.add("color-blue")
+    sidepanel.classList.remove("color-red")
+    sidepanel.classList.add("color-blue")
+    topPanel.classList.remove("color-red")
+    topPanel.classList.add("color-blue")
   }
 
   // Sync Logo Images (logo1 for Sith/Red, logo2 for Jedi/Blue)
@@ -115,7 +119,6 @@ function updateFraction(isRed) {
     if (activeLogo) activeLogo.classList.add("active")
   }
 
-  // Update Hologram Sync
   const fractionClass = isRed ? "sith" : "jedi"
   const color = isRed ? "#ff3333" : "#00ffff"
   const glow = isRed ? "rgba(255, 51, 51, 0.6)" : "rgba(0, 255, 255, 0.6)"
@@ -123,20 +126,25 @@ function updateFraction(isRed) {
     ? "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.3) 0%, rgba(255, 50, 50, 0) 70%)"
     : "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.3) 0%, rgba(0, 255, 255, 0) 70%)"
 
-  // 1. Swap Character Image
-  characters.forEach((c) => c.classList.remove("active"))
-  setTimeout(() => {
-    const nextChar = document.querySelector(`.hologram-character.${fractionClass}`)
-    if (nextChar) nextChar.classList.add("active")
-  }, 50)
+  characters.forEach((c) => {
+    c.style.display = "none"
+    c.classList.remove("active")
+  })
 
-  // 2. Update UI Colors
+  const nextChar = document.querySelector(`.hologram-character.${fractionClass}`)
+  if (nextChar) {
+    nextChar.style.display = "block"
+    // Small delay to trigger the CSS opacity transition
+    setTimeout(() => nextChar.classList.add("active"), 10)
+  }
+
+  // Update UI Colors
   textEl.style.color = color
   messageBox.style.borderRightColor = color
   textEl.style.textShadow = `0 0 10px ${glow}`
   beam.style.background = beamGrad
 
-  // 3. Update Text Content (Select faction specific message)
+  // Update Text Content (Select faction specific message)
   const messages = isRed ? sithMessages : jediMessages
   const randomMsg = messages[Math.floor(Math.random() * messages.length)]
   typeWriter(textEl, randomMsg)
