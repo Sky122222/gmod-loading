@@ -164,6 +164,7 @@ const holoMessages = [
 ]
 
 let holoIndex = 0
+let typewriterTimeout = null
 
 function initHologram() {
   const characters = document.querySelectorAll(".hologram-character")
@@ -182,34 +183,41 @@ function initHologram() {
     // Update colors based on faction
     if (currentMsg.char === "sith") {
       textEl.style.color = "#ff3333"
-      textEl.parentElement.style.borderColor = "#ff3333"
+      textEl.parentElement.style.borderRightColor = "#ff3333"
       textEl.style.textShadow = "0 0 8px rgba(255, 51, 51, 0.6)"
       beam.style.background = "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.3) 0%, rgba(255, 50, 50, 0) 70%)"
     } else {
       textEl.style.color = "#00ffff"
-      textEl.parentElement.style.borderColor = "#00ffff"
+      textEl.parentElement.style.borderRightColor = "#00ffff"
       textEl.style.textShadow = "0 0 8px rgba(0, 255, 255, 0.6)"
       beam.style.background = "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.3) 0%, rgba(0, 255, 255, 0) 70%)"
     }
 
     // Typewriter effect
     typeWriter(textEl, currentMsg.text)
-  }, 8000)
+  }, 5000)
 
-  // Initial text
-  typeWriter(textEl, holoMessages[0].text)
+  // Initial setup
+  const firstMsg = holoMessages[0]
+  const firstChar = document.querySelector(`.hologram-character.${firstMsg.char}`)
+  if (firstChar) firstChar.classList.add("active")
+  typeWriter(textEl, firstMsg.text)
 }
 
 function typeWriter(element, text) {
-  element.innerText = ""
+  if (typewriterTimeout) {
+    clearTimeout(typewriterTimeout)
+  }
+
+  element.textContent = ""
   let i = 0
-  const speed = 50
+  const speed = 40
 
   function type() {
     if (i < text.length) {
-      element.innerText += text.charAt(i)
+      element.textContent += text.charAt(i)
       i++
-      setTimeout(type, speed)
+      typewriterTimeout = setTimeout(type, speed)
     }
   }
   type()
