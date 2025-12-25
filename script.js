@@ -97,6 +97,7 @@ function updateFraction(isRed) {
   const beam = document.querySelector(".hologram-beam")
   const messageBox = document.querySelector(".hologram-message")
   const characters = document.querySelectorAll(".hologram-character")
+  const logos = document.querySelectorAll("#logo .logo-img")
 
   // Update Main Panels
   if (isRed) {
@@ -105,6 +106,13 @@ function updateFraction(isRed) {
   } else {
     sidepanel.classList.replace("color-red", "color-blue") || sidepanel.classList.add("color-blue")
     topPanel.classList.replace("color-red", "color-blue") || topPanel.classList.add("color-blue")
+  }
+
+  // Sync Logo Images (logo1 for Sith/Red, logo2 for Jedi/Blue)
+  if (logos.length >= 2) {
+    logos.forEach((l) => l.classList.remove("active"))
+    const activeLogo = isRed ? logos[0] : logos[1] // logo1 is first, logo2 is second
+    if (activeLogo) activeLogo.classList.add("active")
   }
 
   // Update Hologram Sync
@@ -152,20 +160,6 @@ setInterval(() => {
   if (infoEl) {
     infoIndex = (infoIndex + 1) % infoTexts.length
     infoEl.innerText = infoTexts[infoIndex]
-  }
-}, 5000)
-
-// ============================================
-// LOGO ROTATION
-// ============================================
-let currentLogo = 0
-
-setInterval(() => {
-  const logos = document.querySelectorAll("#logo .logo-img")
-  if (logos.length > 0) {
-    logos[currentLogo].classList.remove("active")
-    currentLogo = (currentLogo + 1) % logos.length
-    logos[currentLogo].classList.add("active")
   }
 }, 5000)
 
