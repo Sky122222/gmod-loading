@@ -133,12 +133,32 @@ setInterval(() => {
 }, 5000)
 
 // ============================================
+// HINTERGRUND-PARALLAX & CURSOR (MAUSBEWEGUNG)
+// ============================================
+function initParallax() {
+  const bg = document.getElementById("background")
+  const cursor = document.getElementById("custom-cursor")
+  if (!bg) return
+
+  document.addEventListener("mousemove", (e) => {
+    // Parallax Effect
+    const x = (window.innerWidth / 2 - e.pageX) / 50
+    const y = (window.innerHeight / 2 - e.pageY) / 50
+    bg.style.transform = `translate(${x}px, ${y}px)`
+
+    if (cursor) {
+      cursor.style.left = e.pageX + "px"
+      cursor.style.top = e.pageY + "px"
+    }
+  })
+}
+
+// ============================================
 // FAKE LOADING (NUR FÜR BROWSER-TEST!)
 // ============================================
-let fakeProgress = 0
-
 function startFakeLoading() {
   initColorCycle()
+  initParallax() // Initialize parallax effect
 
   SetFilesTotal(150)
   SetFilesNeeded(150)
@@ -173,5 +193,7 @@ function startFakeLoading() {
 
   GameDetails("The Eternal Conflict", "", "rp_downtown_v4c", 64, "76561198000000000", "DarkRP")
 }
+
+let fakeProgress = 0
 
 startFakeLoading()
