@@ -157,8 +157,8 @@ const infoTexts = [
   "Willkommen bei Infinity Gaming.",
   "Erlebe den ewigen Konflikt auf unserem Server.",
   "Fragen? Unser Support hilft dir gerne auf Discord.",
-  "Bitte lies dir vor Spielbeginn unsere Regeln durch.",
-  "Respektvolles Roleplay steht bei uns an erster Stelle.",
+  "Bitte lies dir vor Spielbeginn unsere Regeln und unser Lore-Konzept im Forum durch.",
+  "Serious Roleplay steht bei uns an erster Stelle.",
 ]
 
 let infoIndex = 0
@@ -204,9 +204,9 @@ const sithMessages = [
 
 const jediMessages = [
   "Schütze die Republik vor der Dunkelheit!",
-  "Möge die Macht mit dir sein, Rekrut.",
+  "Möge die Macht mit dir sein.",
   "Es gibt keine Gefühle, nur Frieden.",
-  "Ein Jedi nutzt die Macht für das Wissen.",
+  "Die Jedi sind die Friedenswächter der Galaxis.",
 ]
 
 let typewriterTimeout = null
@@ -275,3 +275,4 @@ function startFakeLoading() {
 let fakeProgress = 0
 
 startFakeLoading()
+                          
