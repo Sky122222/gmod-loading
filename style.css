@@ -107,6 +107,8 @@ body {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   margin: 15px 0;
+  /* simplified path to logo1.png */
+  background-image: url("logo1.png");
   background-size: cover;
   background-position: center;
 }
