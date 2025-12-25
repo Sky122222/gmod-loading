@@ -74,29 +74,64 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 }
 
 // ============================================
-// COLOR CYCLE (10s RED / 10s BLUE)
+// COLOR CYCLE (10s RED / 10s BLUE) - SYNCED SYSTEM
 // ============================================
 function initColorCycle() {
   const sidepanel = document.getElementById("sidepanel")
-  const topPanel = document.getElementById("top-right-panel") // get the panel, not just logo
-  const topLogo = document.getElementById("top-right-logo")
+  const topPanel = document.getElementById("top-right-panel")
   let isRed = true
 
   // Initial state
-  sidepanel.classList.add("color-red")
-  topPanel.classList.add("color-red")
+  updateFraction(true)
 
   setInterval(() => {
     isRed = !isRed
-    if (isRed) {
-      sidepanel.classList.replace("color-blue", "color-red")
-      topPanel.classList.replace("color-blue", "color-red")
-    } else {
-      sidepanel.classList.replace("color-red", "color-blue")
-      topPanel.classList.replace("color-blue", "color-red") // This was a bug in previous version, fixed to color-blue
-      topPanel.classList.replace("color-red", "color-blue")
-    }
+    updateFraction(isRed)
   }, 10000) // 10 second interval
+}
+
+function updateFraction(isRed) {
+  const sidepanel = document.getElementById("sidepanel")
+  const topPanel = document.getElementById("top-right-panel")
+  const textEl = document.getElementById("hologram-text")
+  const beam = document.querySelector(".hologram-beam")
+  const messageBox = document.querySelector(".hologram-message")
+  const characters = document.querySelectorAll(".hologram-character")
+
+  // Update Main Panels
+  if (isRed) {
+    sidepanel.classList.replace("color-blue", "color-red") || sidepanel.classList.add("color-red")
+    topPanel.classList.replace("color-blue", "color-red") || topPanel.classList.add("color-red")
+  } else {
+    sidepanel.classList.replace("color-red", "color-blue") || sidepanel.classList.add("color-blue")
+    topPanel.classList.replace("color-red", "color-blue") || topPanel.classList.add("color-blue")
+  }
+
+  // Update Hologram Sync
+  const fractionClass = isRed ? "sith" : "jedi"
+  const color = isRed ? "#ff3333" : "#00ffff"
+  const glow = isRed ? "rgba(255, 51, 51, 0.6)" : "rgba(0, 255, 255, 0.6)"
+  const beamGrad = isRed
+    ? "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.3) 0%, rgba(255, 50, 50, 0) 70%)"
+    : "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.3) 0%, rgba(0, 255, 255, 0) 70%)"
+
+  // 1. Swap Character Image
+  characters.forEach((c) => c.classList.remove("active"))
+  setTimeout(() => {
+    const nextChar = document.querySelector(`.hologram-character.${fractionClass}`)
+    if (nextChar) nextChar.classList.add("active")
+  }, 50)
+
+  // 2. Update UI Colors
+  textEl.style.color = color
+  messageBox.style.borderRightColor = color
+  textEl.style.textShadow = `0 0 10px ${glow}`
+  beam.style.background = beamGrad
+
+  // 3. Update Text Content (Select faction specific message)
+  const messages = isRed ? sithMessages : jediMessages
+  const randomMsg = messages[Math.floor(Math.random() * messages.length)]
+  typeWriter(textEl, randomMsg)
 }
 
 // ============================================
@@ -158,60 +193,21 @@ function initParallax() {
 // ============================================
 // HOLOGRAM SYSTEM
 // ============================================
-const holoMessages = [
-  { char: "sith", text: "Tritt heute noch dem Sith-Imperium bei!" },
-  { char: "jedi", text: "Schütze die Republik vor der Dunkelheit!" },
-  { char: "sith", text: "Die dunkle Seite verleiht grenzenlose Macht." },
-  { char: "jedi", text: "Möge die Macht mit dir sein, Rekrut." },
+const sithMessages = [
+  "Tritt heute noch dem Sith-Imperium bei!",
+  "Die dunkle Seite verleiht grenzenlose Macht.",
+  "Frieden ist eine Lüge, es gibt nur Leidenschaft.",
+  "Durch Macht erlange ich den Sieg.",
 ]
 
-let holoIndex = 0
+const jediMessages = [
+  "Schütze die Republik vor der Dunkelheit!",
+  "Möge die Macht mit dir sein, Rekrut.",
+  "Es gibt keine Gefühle, nur Frieden.",
+  "Ein Jedi nutzt die Macht für das Wissen.",
+]
+
 let typewriterTimeout = null
-
-function initHologram() {
-  const characters = document.querySelectorAll(".hologram-character")
-  const textEl = document.getElementById("hologram-text")
-  const beam = document.querySelector(".hologram-beam")
-  const messageBox = document.querySelector(".hologram-message") // select message box for border sync
-
-  setInterval(() => {
-    holoIndex = (holoIndex + 1) % holoMessages.length
-    const currentMsg = holoMessages[holoIndex]
-
-    // Update character visibility with absolute toggle
-    characters.forEach((c) => {
-      c.classList.remove("active")
-    })
-
-    // Tiny delay to ensure fade out starts before fade in for clean transition
-    setTimeout(() => {
-      const nextChar = document.querySelector(`.hologram-character.${currentMsg.char}`)
-      if (nextChar) nextChar.classList.add("active")
-    }, 50)
-
-    // Update colors based on faction
-    if (currentMsg.char === "sith") {
-      textEl.style.color = "#ff3333"
-      messageBox.style.borderRightColor = "#ff3333" // sync border color
-      textEl.style.textShadow = "0 0 8px rgba(255, 51, 51, 0.6)"
-      beam.style.background = "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.3) 0%, rgba(255, 50, 50, 0) 70%)"
-    } else {
-      textEl.style.color = "#00ffff"
-      messageBox.style.borderRightColor = "#00ffff" // sync border color
-      textEl.style.textShadow = "0 0 8px rgba(0, 255, 255, 0.6)"
-      beam.style.background = "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.3) 0%, rgba(0, 255, 255, 0) 70%)"
-    }
-
-    // Typewriter effect
-    typeWriter(textEl, currentMsg.text)
-  }, 10000) // Synced to 10s color cycle of main panels
-
-  // Initial setup
-  const firstMsg = holoMessages[0]
-  const firstChar = document.querySelector(`.hologram-character.${firstMsg.char}`)
-  if (firstChar) firstChar.classList.add("active")
-  typeWriter(textEl, firstMsg.text)
-}
 
 function typeWriter(element, text) {
   if (typewriterTimeout) {
@@ -236,9 +232,9 @@ function typeWriter(element, text) {
 // FAKE LOADING (NUR FÜR BROWSER-TEST!)
 // ============================================
 function startFakeLoading() {
-  initColorCycle()
+  initColorCycle() // This now controls the hologram sync too
   initParallax()
-  initHologram() // Initialized Hologram system
+  // initHologram() - Removed this as it's now integrated into initColorCycle for perfect sync
 
   SetFilesTotal(150)
   SetFilesNeeded(150)
