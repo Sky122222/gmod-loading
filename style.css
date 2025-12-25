@@ -80,7 +80,8 @@ body {
   top: 30px;
   bottom: 30px;
   width: 320px;
-  background: linear-gradient(180deg, rgba(150, 40, 40, 0.85), rgba(30, 60, 140, 0.85));
+  /* Adjusted colors to match the sci-fi theme: dark grey/blue to deep red */
+  background: linear-gradient(180deg, rgba(20, 20, 25, 0.9), rgba(120, 30, 30, 0.9));
   border-radius: 14px;
   padding: 25px;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
