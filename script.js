@@ -279,11 +279,17 @@ const audioSith = document.getElementById("audio-sith")
 const audioJedi = document.getElementById("audio-jedi")
 const targetVolume = 0.3 // Increased volume slightly for better testing
 
-// Log audio errors immediately
-if (audioSith)
-  audioSith.onerror = () => console.error("[v0] CRITICAL: 'sith.mp3' failed to load. Check file name and existence.")
-if (audioJedi)
-  audioJedi.onerror = () => console.error("[v0] CRITICAL: 'jedi.mp3' failed to load. Check file name and existence.")
+// Improved error logging with exact URLs
+function logAudioError(audio, label) {
+  audio.onerror = () => {
+    console.error(`[v0] CRITICAL: '${label}' failed to load.`)
+    console.error(`[v0] Attempted URL: ${audio.currentSrc || audio.src}`)
+    console.error(`[v0] Error Code: ${audio.error ? audio.error.code : "unknown"}`)
+  }
+}
+
+if (audioSith) logAudioError(audioSith, "sith.mp3")
+if (audioJedi) logAudioError(audioJedi, "jedi.mp3")
 
 function initAudio() {
   console.log("[v0] Audio system standby. Waiting for interaction...")
@@ -294,32 +300,26 @@ function initAudio() {
 
     console.log("[v0] Interaction detected. Initializing playback...")
 
-    // Force load to ensure the browser tries to fetch the files
-    audioSith.load()
-    audioJedi.load()
+    // Resetting and loading to ensure clean state
+    const setupAudio = (audio) => {
+      audio.pause()
+      audio.currentTime = 0
+      audio.volume = 0
+      audio.load()
 
-    // Start muted
-    audioSith.volume = 0
-    audioJedi.volume = 0
-
-    // Play both tracks (synced loop)
-    const playSith = audioSith.play()
-    const playJedi = audioJedi.play()
-
-    if (playSith !== undefined) {
-      playSith
-        .then(() => console.log("[v0] Sith audio playing (muted)"))
-        .catch((e) => console.warn("[v0] Sith audio blocked:", e))
+      const playPromise = audio.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => console.log(`[v0] ${audio.id} playback started`))
+          .catch((e) => console.warn(`[v0] ${audio.id} playback blocked:`, e))
+      }
     }
 
-    if (playJedi !== undefined) {
-      playJedi
-        .then(() => console.log("[v0] Jedi audio playing (muted)"))
-        .catch((e) => console.warn("[v0] Jedi audio blocked:", e))
-    }
+    if (audioSith) setupAudio(audioSith)
+    if (audioJedi) setupAudio(audioJedi)
 
     // Sync faction immediately
-    syncAudioToFaction()
+    setTimeout(syncAudioToFaction, 100)
 
     // Remove listeners
     document.removeEventListener("mousemove", startAudio)
