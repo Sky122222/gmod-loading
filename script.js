@@ -313,89 +313,79 @@ function initAudio() {
   console.log("[v0] Audio system initializing...")
 
   if (audioSith) {
-    audioSith.volume = 0
+    audioSith.volume = targetVolume
     audioSith.loop = false
     audioSith.onended = () => {
-      console.log("[v0] Sith ended -> Jedi")
+      console.log("[v0] Sith ended -> Starting Jedi")
       if (audioJedi) {
         audioJedi.currentTime = 0
-        tryPlay(audioJedi)
+        audioJedi.volume = targetVolume
+        audioJedi.play().catch((e) => console.warn("[v0] Jedi play failed", e))
       }
     }
   }
 
   if (audioJedi) {
-    audioJedi.volume = 0
+    audioJedi.volume = targetVolume
     audioJedi.loop = false
     audioJedi.onended = () => {
-      console.log("[v0] Jedi ended -> Sith")
+      console.log("[v0] Jedi ended -> Starting Sith")
       if (audioSith) {
         audioSith.currentTime = 0
-        tryPlay(audioSith)
+        audioSith.volume = targetVolume
+        audioSith.play().catch((e) => console.warn("[v0] Sith play failed", e))
       }
     }
   }
 
-  tryPlay(audioSith)
+  // Start the first track
+  if (audioSith) {
+    audioSith
+      .play()
+      .then(() => {
+        audioStarted = true
+        console.log("[v0] Initial Sith playback started")
+      })
+      .catch((e) => {
+        console.warn("[v0] Initial autoplay blocked. Waiting for interaction.", e)
+      })
+  }
 
   const unlock = () => {
     if (audioStarted) return
     console.log("[v0] Unlocking audio via interaction...")
-    tryPlay(audioSith)
+    if (audioSith) {
+      audioSith
+        .play()
+        .then(() => {
+          audioStarted = true
+        })
+        .catch((e) => console.error("[v0] Manual play failed", e))
+    }
     document.removeEventListener("mousemove", unlock)
     document.removeEventListener("mousedown", unlock)
+    document.removeEventListener("keydown", unlock)
   }
 
   document.addEventListener("mousemove", unlock)
   document.addEventListener("mousedown", unlock)
+  document.addEventListener("keydown", unlock)
 }
 
 function syncAudioToFaction() {
-  if (!audioStarted) return
-  const sidepanel = document.getElementById("sidepanel")
-  const isRed = sidepanel?.classList.contains("color-red")
-
-  const sithTarget = isRed ? targetVolume : 0.05
-  const jediTarget = isRed ? 0.05 : targetVolume
-
-  if (!audioSith.paused) fadeAudio(audioSith, sithTarget)
-  if (!audioJedi.paused) fadeAudio(audioJedi, jediTarget)
+  // Logic removed to keep music volume constant regardless of faction
+  console.log("[v0] Music volume remains constant during faction change")
 }
 
 function fadeAudio(audio, target) {
-  if (!audio) return
-  const step = 0.01
-  const intervalTime = 50
-
-  if (audio.fadeTimer) clearInterval(audio.fadeTimer)
-
-  audio.fadeTimer = setInterval(() => {
-    // Ensure we don't fade up if the audio isn't actually playing
-    if (target > 0 && audio.paused) {
-      clearInterval(audio.fadeTimer)
-      return
-    }
-
-    if (audio.volume < target) {
-      audio.volume = Math.min(target, audio.volume + step)
-    } else if (audio.volume > target) {
-      audio.volume = Math.max(target, audio.volume - step)
-    }
-
-    if (Math.abs(audio.volume - target) < 0.01) {
-      audio.volume = target
-      clearInterval(audio.fadeTimer)
-    }
-  }, intervalTime)
+  // Simplified or removed to prevent conflicting with sequential play
 }
 
 // Hook into the faction switch
 const originalUpdateFraction = updateFraction
 updateFraction = (isRed) => {
   originalUpdateFraction(isRed)
-  if (audioStarted) {
-    syncAudioToFaction()
-  }
+  // No longer changing volume here to keep sequential play clean
 }
 
 startFakeLoading()
