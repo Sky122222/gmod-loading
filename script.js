@@ -63,16 +63,38 @@ function updateDownloadInfo() {
 
 function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
   const serverEl = document.getElementById("servername")
-  const playerCountEl = document.getElementById("player-count")
   const avatarEl = document.getElementById("avatar")
 
   if (serverEl && servername) serverEl.innerText = "The Eternal Conflict"
-  if (playerCountEl && maxplayers) playerCountEl.innerText = "Slots: 0 / " + maxplayers
 
   if (steamid && avatarEl) {
     avatarEl.style.backgroundImage =
       "url('https://steamcommunity.com/actions/DisplayAvatar?steamid=" + steamid + "&avatarsize=full')"
   }
+}
+
+// ============================================
+// COLOR CYCLE (10s RED / 10s BLUE)
+// ============================================
+function initColorCycle() {
+  const sidepanel = document.getElementById("sidepanel")
+  const topLogo = document.getElementById("top-right-logo")
+  let isRed = true
+
+  // Initial state
+  sidepanel.classList.add("color-red")
+  topLogo.classList.add("glow-red")
+
+  setInterval(() => {
+    isRed = !isRed
+    if (isRed) {
+      sidepanel.classList.replace("color-blue", "color-red")
+      topLogo.classList.replace("glow-blue", "glow-red")
+    } else {
+      sidepanel.classList.replace("color-red", "color-blue")
+      topLogo.classList.replace("glow-red", "glow-blue")
+    }
+  }, 10000) // 10 second interval
 }
 
 // ============================================
@@ -116,6 +138,8 @@ setInterval(() => {
 let fakeProgress = 0
 
 function startFakeLoading() {
+  initColorCycle()
+
   SetFilesTotal(150)
   SetFilesNeeded(150)
 
