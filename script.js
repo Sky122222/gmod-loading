@@ -98,15 +98,15 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 
 const songs = [
   {
-    file: "https://www.dropbox.com/scl/fi/mm9qzwo2mpxb87opj70t3/dromund-kaas-the-seat-of-power.mp3?rlkey=7891pxe1ui6xzfru50ltcnv82&raw=1",
+    file: "https://dl.dropboxusercontent.com/scl/fi/mm9qzwo2mpxb87opj70t3/dromund-kaas-the-seat-of-power.mp3?rlkey=7891pxe1ui6xzfru50ltcnv82&raw=1",
     title: "Dromund Kaas: The Seat of Power",
   },
   {
-    file: "https://www.dropbox.com/scl/fi/l2fj99nwu03l93k08e8zx/coruscant-the-capital.mp3?rlkey=j68pojym2oei1yculurkhu65u&raw=1",
+    file: "https://dl.dropboxusercontent.com/scl/fi/l2fj99nwu03l93k08e8zx/coruscant-the-capital.mp3?rlkey=j68pojym2oei1yculurkhu65u&raw=1",
     title: "Coruscant: The Capital",
   },
   {
-    file: "https://www.dropbox.com/scl/fi/njvmtnj8n4ryg1ilq7j8c/the-blood-of-kings.mp3?rlkey=011ajr4vdc5q0075nkkksw035&raw=1",
+    file: "https://dl.dropboxusercontent.com/scl/fi/njvmtnj8n4ryg1ilq7j8c/the-blood-of-kings.mp3?rlkey=011ajr4vdc5q0075nkkksw035&raw=1",
     title: "The Blood of Kings",
   },
 ]
@@ -129,12 +129,19 @@ function initMusicPlayer() {
     return
   }
 
+  audio.crossOrigin = "anonymous"
+
   loadSong(currentSongIndex)
 
   audio.volume = volumeSlider ? volumeSlider.value / 100 : 0.5
 
   audio.addEventListener("error", (e) => {
-    console.error("Audio Load Error:", audio.error)
+    console.error("[v0] Audio Load Error:", audio.error)
+    if (audio.error && audio.error.code === 4) {
+      console.warn(
+        "[v0] Media resource could not be decoded. This often happens if the URL doesn't return a valid MP3 file.",
+      )
+    }
   })
 
   // Play/Pause Button
