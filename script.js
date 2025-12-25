@@ -98,15 +98,15 @@ function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemo
 
 const songs = [
   {
-    file: "https://dl.dropboxusercontent.com/scl/fi/mm9qzwo2mpxb87opj70t3/dromund-kaas-the-seat-of-power.mp3?rlkey=7891pxe1ui6xzfru50ltcnv82",
+    file: "https://www.dropbox.com/scl/fi/mm9qzwo2mpxb87opj70t3/dromund-kaas-the-seat-of-power.mp3?rlkey=7891pxe1ui6xzfru50ltcnv82&raw=1",
     title: "Dromund Kaas: The Seat of Power",
   },
   {
-    file: "https://dl.dropboxusercontent.com/scl/fi/l2fj99nwu03l93k08e8zx/coruscant-the-capital.mp3?rlkey=j68pojym2oei1yculurkhu65u",
+    file: "https://www.dropbox.com/scl/fi/l2fj99nwu03l93k08e8zx/coruscant-the-capital.mp3?rlkey=j68pojym2oei1yculurkhu65u&raw=1",
     title: "Coruscant: The Capital",
   },
   {
-    file: "https://dl.dropboxusercontent.com/scl/fi/njvmtnj8n4ryg1ilq7j8c/the-blood-of-kings.mp3?rlkey=011ajr4vdc5q0075nkkksw035",
+    file: "https://www.dropbox.com/scl/fi/njvmtnj8n4ryg1ilq7j8c/the-blood-of-kings.mp3?rlkey=011ajr4vdc5q0075nkkksw035&raw=1",
     title: "The Blood of Kings",
   },
 ]
@@ -231,7 +231,9 @@ function loadSong(index) {
   const titleEl = document.getElementById("music-title")
 
   if (audio && songs[index]) {
+    audio.pause()
     audio.src = songs[index].file
+    audio.load() // Explicitly load the new resource
     if (titleEl) titleEl.innerText = songs[index].title
   }
 }
