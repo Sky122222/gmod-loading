@@ -308,7 +308,8 @@ function initAudio() {
 
     if (audioSith) {
       audioSith.volume = 0
-      audioSith.loop = false // Disable loop for sequential
+      audioSith.loop = false
+      // Only play Sith first, Jedi will follow via onended
       audioSith
         .play()
         .then(() => {
@@ -321,26 +322,23 @@ function initAudio() {
         console.log("[v0] Sith audio ended. Starting Jedi...")
         if (audioJedi) {
           audioJedi.currentTime = 0
-          audioJedi.play()
-          syncAudioToFaction()
+          audioJedi.play().then(() => syncAudioToFaction())
         }
       }
     }
 
     if (audioJedi) {
       audioJedi.volume = 0
-      audioJedi.loop = false // Disable loop for sequential
+      audioJedi.loop = false
       audioJedi.onended = () => {
         console.log("[v0] Jedi audio ended. Restarting Sith...")
         if (audioSith) {
           audioSith.currentTime = 0
-          audioSith.play()
-          syncAudioToFaction()
+          audioSith.play().then(() => syncAudioToFaction())
         }
       }
     }
 
-    // Remove listeners
     document.removeEventListener("mousemove", startAudio)
     document.removeEventListener("mousedown", startAudio)
   }
@@ -354,13 +352,14 @@ function syncAudioToFaction() {
   const isRed = sidepanel?.classList.contains("color-red")
   currentFactionIsRed = isRed
 
-  // Volume cross-fade based on faction, while tracks play sequentially
+  // but do NOT force track swaps based on faction.
+
   if (isRed) {
-    fadeAudio(audioSith, targetVolume)
-    fadeAudio(audioJedi, 0.02) // Keep other track very slightly audible for atmosphere
+    if (!audioSith.paused) fadeAudio(audioSith, targetVolume)
+    if (!audioJedi.paused) fadeAudio(audioJedi, 0.05) // Ducker if playing during wrong faction
   } else {
-    fadeAudio(audioSith, 0.02)
-    fadeAudio(audioJedi, targetVolume)
+    if (!audioJedi.paused) fadeAudio(audioJedi, targetVolume)
+    if (!audioSith.paused) fadeAudio(audioSith, 0.05) // Ducker if playing during wrong faction
   }
 }
 
