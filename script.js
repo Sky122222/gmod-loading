@@ -275,92 +275,91 @@ function startFakeLoading() {
 
 let fakeProgress = 0
 
-let audioContextStarted = false
+let audioStarted = false
 const audioSith = document.getElementById("audio-sith")
 const audioJedi = document.getElementById("audio-jedi")
-const targetVolume = 0.15 // Slightly lower volume for better background feel
-let currentFactionIsRed = true // Keep track of faction state
+const targetVolume = 0.2 // increased volume slightly
 
 function logAudioError(audio, label) {
   if (!audio) return
   audio.addEventListener("error", (e) => {
     console.error(`[v0] Audio Error: '${label}' could not be loaded.`, e)
-    console.log(`[v0] Network State: ${audio.networkState}, Ready State: ${audio.readyState}`)
-    console.log(`[v0] Source path: ${audio.currentSrc || "Unknown"}`)
   })
 
   audio.addEventListener("canplaythrough", () => {
     console.log(`[v0] Audio Ready: '${label}' loaded successfully.`)
+    tryPlay(audio)
   })
 }
 
 logAudioError(audioSith, "sith.mp3")
 logAudioError(audioJedi, "jedi.mp3")
 
+function tryPlay(audio) {
+  if (!audio) return
+  audio
+    .play()
+    .then(() => {
+      console.log(`[v0] Playback started: ${audio.id}`)
+      audioStarted = true
+      syncAudioToFaction()
+    })
+    .catch((e) => {
+      console.warn(`[v0] Autoplay blocked or failed for ${audio.id}. Waiting for interaction.`, e)
+    })
+}
+
 function initAudio() {
-  console.log("[v0] Audio system standby. Move mouse to start playback.")
+  console.log("[v0] Audio system initializing...")
 
-  const startAudio = () => {
-    if (audioContextStarted) return
-    audioContextStarted = true
-
-    console.log("[v0] Interaction detected. Initializing sequential playback...")
-
-    if (audioSith) {
-      audioSith.volume = 0
-      audioSith.loop = false
-      // Only play Sith first, Jedi will follow via onended
-      audioSith
-        .play()
-        .then(() => {
-          console.log("[v0] Sith audio playback started.")
-          syncAudioToFaction()
-        })
-        .catch((e) => console.error("[v0] Sith playback failed:", e))
-
-      audioSith.onended = () => {
-        console.log("[v0] Sith audio ended. Starting Jedi...")
-        if (audioJedi) {
-          audioJedi.currentTime = 0
-          audioJedi.play().then(() => syncAudioToFaction())
-        }
+  if (audioSith) {
+    audioSith.volume = 0
+    audioSith.loop = false
+    audioSith.onended = () => {
+      console.log("[v0] Sith ended -> Jedi")
+      if (audioJedi) {
+        audioJedi.currentTime = 0
+        tryPlay(audioJedi)
       }
     }
-
-    if (audioJedi) {
-      audioJedi.volume = 0
-      audioJedi.loop = false
-      audioJedi.onended = () => {
-        console.log("[v0] Jedi audio ended. Restarting Sith...")
-        if (audioSith) {
-          audioSith.currentTime = 0
-          audioSith.play().then(() => syncAudioToFaction())
-        }
-      }
-    }
-
-    document.removeEventListener("mousemove", startAudio)
-    document.removeEventListener("mousedown", startAudio)
   }
 
-  document.addEventListener("mousemove", startAudio)
-  document.addEventListener("mousedown", startAudio)
+  if (audioJedi) {
+    audioJedi.volume = 0
+    audioJedi.loop = false
+    audioJedi.onended = () => {
+      console.log("[v0] Jedi ended -> Sith")
+      if (audioSith) {
+        audioSith.currentTime = 0
+        tryPlay(audioSith)
+      }
+    }
+  }
+
+  tryPlay(audioSith)
+
+  const unlock = () => {
+    if (audioStarted) return
+    console.log("[v0] Unlocking audio via interaction...")
+    tryPlay(audioSith)
+    document.removeEventListener("mousemove", unlock)
+    document.removeEventListener("mousedown", unlock)
+  }
+
+  document.addEventListener("mousemove", unlock)
+  document.addEventListener("mousedown", unlock)
 }
 
 function syncAudioToFaction() {
+  if (!audioStarted) return
   const sidepanel = document.getElementById("sidepanel")
   const isRed = sidepanel?.classList.contains("color-red")
-  currentFactionIsRed = isRed
 
-  // but do NOT force track swaps based on faction.
+  const sithTarget = isRed ? targetVolume : 0.05
+  const jediTarget = isRed ? 0.05 : targetVolume
 
-  if (isRed) {
-    if (!audioSith.paused) fadeAudio(audioSith, targetVolume)
-    if (!audioJedi.paused) fadeAudio(audioJedi, 0.05) // Ducker if playing during wrong faction
-  } else {
-    if (!audioJedi.paused) fadeAudio(audioJedi, targetVolume)
-    if (!audioSith.paused) fadeAudio(audioSith, 0.05) // Ducker if playing during wrong faction
-  }
+  if (!audioSith.paused) fadeAudio(audioSith, sithTarget)
+  if (!audioJedi.paused) fadeAudio(audioJedi, jediTarget)
 }
 
 function fadeAudio(audio, target) {
@@ -394,7 +393,7 @@ function fadeAudio(audio, target) {
 const originalUpdateFraction = updateFraction
 updateFraction = (isRed) => {
   originalUpdateFraction(isRed)
-  if (audioContextStarted) {
+  if (audioStarted) {
     syncAudioToFaction()
   }
 }
