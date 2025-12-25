@@ -4,11 +4,11 @@
 
 body {
   margin: 0;
-  /* updated to Rajdhani as primary body font for better readability and sci-fi vibe */
   font-family: "Rajdhani", sans-serif;
   color: white;
   overflow: hidden;
-  background-color: #050505; /* base background color */
+  background-color: #050505;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 /* added scanline overlay styling */
@@ -49,20 +49,52 @@ body {
   }
 }
 
-/* NEUES LOGO OBEN RECHTS */
-#top-right-logo {
+/* Modern terminal corners */
+.terminal-corner {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  z-index: 5;
+  pointer-events: none;
+}
+.top-left {
+  top: 15px;
+  left: 15px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.bottom-right {
+  bottom: 15px;
+  right: 15px;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* Redesigned top-right panel for a cleaner, framed look */
+#top-right-panel {
   position: fixed;
   top: 30px;
   right: 30px;
-  width: 350px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   z-index: 20;
-  animation: float 4s ease-in-out infinite;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: border-color 2s ease-in-out, box-shadow 2s ease-in-out;
+}
+
+#top-right-logo {
+  width: 320px;
+  animation: float 6s ease-in-out infinite;
 }
 
 #top-right-logo img {
   width: 100%;
-  /* Added transition for the glow color cycle */
-  transition: filter 2s ease-in-out;
+  transition: filter 3s ease-in-out;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
 }
 
 @keyframes float {
@@ -95,27 +127,33 @@ body {
 }
 
 /* Added classes for the 10s interval color cycle */
+#sidepanel.color-red,
+#top-right-panel.color-red {
+  border-color: rgba(184, 50, 50, 0.4);
+  box-shadow: 0 0 30px rgba(184, 50, 50, 0.15);
+}
+
 #sidepanel.color-red {
-  background: linear-gradient(180deg, rgba(15, 10, 10, 0.98), rgba(60, 10, 10, 0.95));
-  border-color: rgba(184, 50, 50, 0.5);
-  /* added glowing shadow to panel */
-  box-shadow: 0 0 30px rgba(184, 50, 50, 0.2);
+  background: linear-gradient(180deg, rgba(15, 5, 5, 0.95), rgba(40, 5, 5, 0.9));
+}
+
+#sidepanel.color-blue,
+#top-right-panel.color-blue {
+  border-color: rgba(47, 95, 210, 0.4);
+  box-shadow: 0 0 30px rgba(47, 95, 210, 0.15);
 }
 
 #sidepanel.color-blue {
-  background: linear-gradient(180deg, rgba(10, 10, 15, 0.98), rgba(10, 30, 60, 0.95));
-  border-color: rgba(47, 95, 210, 0.5);
-  /* added glowing shadow to panel */
-  box-shadow: 0 0 30px rgba(47, 95, 210, 0.2);
+  background: linear-gradient(180deg, rgba(5, 5, 15, 0.95), rgba(5, 15, 40, 0.9));
 }
 
 /* Logo glow cycle classes */
-#top-right-logo.glow-red img {
-  filter: drop-shadow(0 0 20px rgba(184, 50, 50, 0.6));
+#top-right-panel.color-red #top-right-logo img {
+  filter: drop-shadow(0 0 15px rgba(184, 50, 50, 0.5));
 }
 
-#top-right-logo.glow-blue img {
-  filter: drop-shadow(0 0 20px rgba(47, 95, 210, 0.6));
+#top-right-panel.color-blue #top-right-logo img {
+  filter: drop-shadow(0 0 15px rgba(47, 95, 210, 0.5));
 }
 
 /* PROFIL */
@@ -345,17 +383,29 @@ body {
 }
 
 #progressbar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 #progress {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #b83232, #2f5fd2);
-  border-radius: 4px;
-  transition: width 0.3s;
+  background: linear-gradient(90deg, #b83232, #2f5fd2, #b83232);
+  background-size: 200% 100%;
+  animation: barFlow 4s linear infinite;
+  box-shadow: 0 0 10px currentColor;
+}
+
+@keyframes barFlow {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 
 #status {
