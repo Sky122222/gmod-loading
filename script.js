@@ -154,11 +154,72 @@ function initParallax() {
 }
 
 // ============================================
+// HOLOGRAM SYSTEM
+// ============================================
+const holoMessages = [
+  { char: "sith", text: "Tritt heute noch dem Sith-Imperium bei!" },
+  { char: "jedi", text: "Schütze die Republik vor der Dunkelheit!" },
+  { char: "sith", text: "Die dunkle Seite verleiht grenzenlose Macht." },
+  { char: "jedi", text: "Möge die Macht mit dir sein, Rekrut." },
+]
+
+let holoIndex = 0
+
+function initHologram() {
+  const characters = document.querySelectorAll(".hologram-character")
+  const textEl = document.getElementById("hologram-text")
+  const beam = document.querySelector(".hologram-beam")
+
+  setInterval(() => {
+    holoIndex = (holoIndex + 1) % holoMessages.length
+    const currentMsg = holoMessages[holoIndex]
+
+    // Update character visibility
+    characters.forEach((c) => c.classList.remove("active"))
+    const nextChar = document.querySelector(`.hologram-character.${currentMsg.char}`)
+    if (nextChar) nextChar.classList.add("active")
+
+    // Update colors based on faction
+    if (currentMsg.char === "sith") {
+      textEl.style.color = "#ff3333"
+      textEl.style.borderLeftColor = "#ff3333"
+      beam.style.background = "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.2) 0%, rgba(255, 50, 50, 0) 70%)"
+    } else {
+      textEl.style.color = "#00ffff"
+      textEl.style.borderLeftColor = "#00ffff"
+      beam.style.background = "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.2) 0%, rgba(0, 255, 255, 0) 70%)"
+    }
+
+    // Typewriter effect
+    typeWriter(textEl, currentMsg.text)
+  }, 8000)
+
+  // Initial text
+  typeWriter(textEl, holoMessages[0].text)
+}
+
+function typeWriter(element, text) {
+  element.innerText = ""
+  let i = 0
+  const speed = 50
+
+  function type() {
+    if (i < text.length) {
+      element.innerText += text.charAt(i)
+      i++
+      setTimeout(type, speed)
+    }
+  }
+  type()
+}
+
+// ============================================
 // FAKE LOADING (NUR FÜR BROWSER-TEST!)
 // ============================================
 function startFakeLoading() {
   initColorCycle()
-  initParallax() // Initialize parallax effect
+  initParallax()
+  initHologram() // Initialized Hologram system
 
   SetFilesTotal(150)
   SetFilesNeeded(150)
