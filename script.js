@@ -182,12 +182,14 @@ function initHologram() {
     // Update colors based on faction
     if (currentMsg.char === "sith") {
       textEl.style.color = "#ff3333"
-      textEl.style.borderLeftColor = "#ff3333"
-      beam.style.background = "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.2) 0%, rgba(255, 50, 50, 0) 70%)"
+      textEl.parentElement.style.borderColor = "#ff3333"
+      textEl.style.textShadow = "0 0 8px rgba(255, 51, 51, 0.6)"
+      beam.style.background = "radial-gradient(ellipse at bottom, rgba(255, 50, 50, 0.3) 0%, rgba(255, 50, 50, 0) 70%)"
     } else {
       textEl.style.color = "#00ffff"
-      textEl.style.borderLeftColor = "#00ffff"
-      beam.style.background = "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.2) 0%, rgba(0, 255, 255, 0) 70%)"
+      textEl.parentElement.style.borderColor = "#00ffff"
+      textEl.style.textShadow = "0 0 8px rgba(0, 255, 255, 0.6)"
+      beam.style.background = "radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.3) 0%, rgba(0, 255, 255, 0) 70%)"
     }
 
     // Typewriter effect
